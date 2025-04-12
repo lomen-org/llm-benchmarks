@@ -1,0 +1,35 @@
+[
+  {
+    "id": "conv-001",
+    "turns": [
+      {
+        "user": "What is the current price of bitcoin in USD?",
+        "expected": "The current price of Bitcoin is approximately $X USD."
+      },
+      {
+        "user": "How volatile has it been in the last 24 hours?",
+        "expected": "Bitcoin has shown [low/medium/high] volatility in the last 24 hours, with price fluctuations around Y%."
+      }
+    ]
+  },
+  {
+    "id": "conv-002",
+    "turns": [
+      {
+        "user": "Explain the concept of blockchain in simple terms."
+      },
+      {
+        "user": "How does it relate to cryptocurrencies?"
+      }
+    ]
+  },
+  {
+    "id": "conv-003",
+    "messages": [
+      {
+        "role": "user",
+        "content": "What is the latest base block?"
+      }
+    ]
+  }
+]

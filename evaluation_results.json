@@ -1,0 +1,80 @@
+[
+  {
+    "id": "conv-001",
+    "turns": [
+      {
+        "id": "conv-001-turn-1",
+        "conversation_id": "conv-001",
+        "turn": 1,
+        "user_message": "What is the current price of bitcoin in USD?",
+        "expected": "The current price of Bitcoin is approximately $X USD.",
+        "actual": "The current price of Bitcoin is $83,530 USD.",
+        "latency": 2.2706401247996837,
+        "error": null,
+        "prompt": "What is the current price of bitcoin in USD?",
+        "score": 1.0,
+        "scoreReasoning": "Reason: The actual answer correctly provides a specific current price for Bitcoin in USD, maintaining the semantic meaning of the reference answer.",
+        "eval_error": null
+      },
+      {
+        "id": "conv-001-turn-2",
+        "conversation_id": "conv-001",
+        "turn": 2,
+        "user_message": "How volatile has it been in the last 24 hours?",
+        "expected": "Bitcoin has shown [low/medium/high] volatility in the last 24 hours, with price fluctuations around Y%.",
+        "actual": "In the last 24 hours, the price of Bitcoin has changed by 2.29%. The 24-hour volume is $33.7B.",
+        "latency": 2.0453296250198036,
+        "error": null,
+        "prompt": "How volatile has it been in the last 24 hours?",
+        "score": 0.65,
+        "scoreReasoning": "Reason: While the actual answer \u200b\u200bdoes provide the percentage change and volume, which is important data, it does not specify the level of volatility from the last 24 hours.",
+        "eval_error": null
+      }
+    ]
+  },
+  {
+    "id": "conv-002",
+    "turns": [
+      {
+        "id": "conv-002-turn-1",
+        "conversation_id": "conv-002",
+        "turn": 1,
+        "user_message": "Explain the concept of blockchain in simple terms.",
+        "expected": null,
+        "actual": "Imagine a digital ledger that is duplicated and distributed across many computers. Each transaction is recorded as a \"block\" and added to a \"chain\" of previous blocks. Because the ledger is shared, everyone can see the transactions, and it's very difficult to tamper with the records. This creates a transparent and secure way to track and verify information, like who owns what cryptocurrency.",
+        "latency": 1.557820999994874,
+        "error": null,
+        "prompt": "Explain the concept of blockchain in simple terms.",
+        "score": 0.9,
+        "scoreReasoning": "Reason: The answer provides a clear, comprehensive, and correct explanation of a complex concept, with only minor nuances missing for full comprehension.",
+        "eval_error": null
+      },
+      {
+        "id": "conv-002-turn-2",
+        "conversation_id": "conv-002",
+        "turn": 2,
+        "user_message": "How does it relate to cryptocurrencies?",
+        "expected": null,
+        "actual": "Cryptocurrencies use blockchain technology as their underlying infrastructure. Here's how they relate:\n\n*   **Decentralization:** Blockchains are decentralized, meaning no single entity controls the cryptocurrency.\n*   **Security:** Blockchain's cryptographic security ensures that transactions are secure and tamper-proof.\n*   **Transparency:** All transactions are recorded on the blockchain, providing a transparent history of all activity.\n*   **Record Keeping:** The blockchain acts as a public record of all cryptocurrency transactions.\n*   **Token Creation:** Blockchains provide a platform for creating and managing new cryptocurrencies and other digital assets.",
+        "latency": 2.175159457838163,
+        "error": null,
+        "prompt": "How does it relate to cryptocurrencies?",
+        "score": 0.9,
+        "scoreReasoning": "Reason: The answer is comprehensive, logically sound, and clear, but lacks a slight depth explanation about token creation.",
+        "eval_error": null
+      }
+    ]
+  },
+  {
+    "id": "conv-003",
+    "expected": null,
+    "user_message": "What is the latest base block?",
+    "actual": "The latest block number on Base is 28830241.",
+    "latency": 1.8827366249170154,
+    "error": null,
+    "prompt": "What is the latest base block?",
+    "score": 0.7,
+    "scoreReasoning": "Reason: The answer is clear and factually correct, but we can't assess its completeness without knowledge of the implied question or task.",
+    "eval_error": null
+  }
+]
