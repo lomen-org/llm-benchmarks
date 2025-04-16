@@ -1,0 +1,99 @@
+[
+  {
+    "id": "conv-001",
+    "turns": [
+      {
+        "id": "conv-001-turn-1",
+        "conversation_id": "conv-001",
+        "turn": 1,
+        "user_message": "What is the current price of bitcoin in USD?",
+        "expected": "The current price of Bitcoin is approximately $X USD.",
+        "actual": "The current price of Bitcoin is $83,389 USD.",
+        "latency": 4.608246000017971,
+        "error": null,
+        "score": 1.0,
+        "scoreReasoning": "The actual answer precisely matches the intent and semantic meaning of the reference answer.",
+        "eval_error": null
+      },
+      {
+        "id": "conv-001-turn-2",
+        "conversation_id": "conv-001",
+        "turn": 2,
+        "user_message": "How volatile has it been in the last 24 hours?",
+        "expected": "Bitcoin has shown [low/medium/high] volatility in the last 24 hours, with price fluctuations around Y%.",
+        "actual": "In the last 24 hours, the price of Bitcoin has changed by -2.72% and the 24h volume is $25.98B.",
+        "latency": 2.6376605830155313,
+        "error": null,
+        "score": 0.5,
+        "scoreReasoning": "The actual answer provides specific data but lacks direct statement about Bitcoin's volatility which was required in the reference answer.",
+        "eval_error": null
+      }
+    ],
+    "conversation_summary": {
+      "total_turns": 2,
+      "successfully_completed_turns": 2,
+      "scored_turns": 2,
+      "error_turns": 0,
+      "average_score": 0.75,
+      "total_latency": 7.2459,
+      "average_latency_per_turn": 3.623,
+      "median_latency_per_turn": 3.623,
+      "min_latency_per_turn": 2.6377,
+      "max_latency_per_turn": 4.6082
+    }
+  },
+  {
+    "id": "conv-002",
+    "turns": [
+      {
+        "id": "conv-002-turn-1",
+        "conversation_id": "conv-002",
+        "turn": 1,
+        "user_message": "Explain the concept of blockchain in simple terms.",
+        "expected": null,
+        "actual": "Imagine a digital ledger that is duplicated and distributed across many computers in a network. Each new transaction, or \"block,\" is added to the chain after being verified by the network. Once a block is added, it cannot be altered or deleted, making the blockchain a transparent and secure record of all transactions. This is useful for cryptocurrencies like Bitcoin, but also for supply chain tracking, voting, and more.",
+        "latency": 3.460105416132137,
+        "error": null,
+        "score": 0.9,
+        "scoreReasoning": "The answer is clear, well-explained, and complete.",
+        "eval_error": null
+      },
+      {
+        "id": "conv-002-turn-2",
+        "conversation_id": "conv-002",
+        "turn": 2,
+        "user_message": "How does it relate to cryptocurrencies?",
+        "expected": null,
+        "actual": "Cryptocurrencies like Bitcoin rely on blockchain technology to operate. The blockchain acts as a public, decentralized record of all cryptocurrency transactions. When you send or receive cryptocurrency, that transaction is added to a block, which is then added to the blockchain. This ensures that all transactions are transparent, secure, and tamper-proof. Because the blockchain is distributed across many computers, there is no single point of failure, making it very difficult to hack or manipulate.",
+        "latency": 2.3544918331317604,
+        "error": null,
+        "score": 0.9,
+        "scoreReasoning": "The answer is clear, well-explained, and complete.",
+        "eval_error": null
+      }
+    ],
+    "conversation_summary": {
+      "total_turns": 2,
+      "successfully_completed_turns": 2,
+      "scored_turns": 2,
+      "error_turns": 0,
+      "average_score": 0.9,
+      "total_latency": 5.8146,
+      "average_latency_per_turn": 2.9073,
+      "median_latency_per_turn": 2.9073,
+      "min_latency_per_turn": 2.3545,
+      "max_latency_per_turn": 3.4601
+    }
+  },
+  {
+    "id": "conv-003",
+    "expected": null,
+    "user_message": "What is the latest base block?",
+    "actual": "The latest block number on Base is 29000466.",
+    "latency": 3.7887721669394523,
+    "error": null,
+    "score": 0.8,
+    "scoreReasoning": "The given answer is clear and logically sound but does not provide enough context to verify its factual accuracy and completeness.",
+    "eval_error": null
+  }
+]

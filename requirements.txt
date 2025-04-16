@@ -1,8 +1,0 @@
-langchain
-langchain-openai
-python-dotenv
-jinja2
-aiohttp
-flask
-plotly
-pandas

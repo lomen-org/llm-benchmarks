@@ -1,0 +1,36 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "llm-benchmarker"
+version = "0.1.0"
+authors = [
+  { name="Your Name", email="your.email@example.com" }, # TODO: Update author details
+]
+description = "A Python SDK for benchmarking LLM responses and conversations."
+readme = "README.md" # Assumes you will create a README.md
+requires-python = ">=3.8"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License", # TODO: Choose appropriate license
+    "Operating System :: OS Independent",
+    "Intended Audience :: Developers",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Software Development :: Testing",
+]
+dependencies = [
+    "langchain-openai>=0.1.0", # Includes langchain
+    "aiohttp>=3.9.0",
+    "python-dotenv>=1.0.0",
+    "Jinja2>=3.0.0", # Add Jinja2 dependency
+]
+
+[project.urls]
+"Homepage" = "https://github.com/yourusername/llm-benchmark" # TODO: Update URL
+"Bug Tracker" = "https://github.com/yourusername/llm-benchmark/issues" # TODO: Update URL
+
+[tool.setuptools.packages.find]
+where = ["."] # Look for packages in the current directory
+include = ["llm_benchmarker*"]  # Include the main package
+exclude = ["tests*"] # Exclude tests if you add them later

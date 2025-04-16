@@ -1,0 +1,39 @@
+{
+  "overall_summary": {
+    "total_items_processed": 5,
+    "successfully_completed_items": 5,
+    "scored_items": 5,
+    "error_items": 0,
+    "average_score_overall": 0.82,
+    "average_latency_overall": 3.3699,
+    "median_latency_overall": 3.4601,
+    "min_latency_overall": 2.3545,
+    "max_latency_overall": 4.6082
+  },
+  "conversation_summaries": {
+    "conv-001": {
+      "total_turns": 2,
+      "successfully_completed_turns": 2,
+      "scored_turns": 2,
+      "error_turns": 0,
+      "average_score": 0.75,
+      "total_latency": 7.2459,
+      "average_latency_per_turn": 3.623,
+      "median_latency_per_turn": 3.623,
+      "min_latency_per_turn": 2.6377,
+      "max_latency_per_turn": 4.6082
+    },
+    "conv-002": {
+      "total_turns": 2,
+      "successfully_completed_turns": 2,
+      "scored_turns": 2,
+      "error_turns": 0,
+      "average_score": 0.9,
+      "total_latency": 5.8146,
+      "average_latency_per_turn": 2.9073,
+      "median_latency_per_turn": 2.9073,
+      "min_latency_per_turn": 2.3545,
+      "max_latency_per_turn": 3.4601
+    }
+  }
+}
