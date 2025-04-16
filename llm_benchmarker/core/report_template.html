@@ -1,0 +1,774 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Benchmark Results</title>
+    <style>
+      :root {
+        --primary-color: #007bff; /* Example primary color */
+        --background-color: #f8f9fa;
+        --card-background: #ffffff;
+        --text-color: #212529;
+        --border-color: #dee2e6;
+        --hover-color: #e9ecef;
+        --error-color: #dc3545;
+        --success-color: #28a745;
+        --score-high-bg: #d4edda;
+        --score-high-text: #155724;
+        --score-medium-bg: #fff3cd;
+        --score-medium-text: #856404;
+        --score-low-bg: #f8d7da;
+        --score-low-text: #721c24;
+        --score-none-bg: #e9ecef;
+        --score-none-text: #6c757d;
+        --score-none-border: #adb5bd;
+      }
+
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          Oxygen, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+        line-height: 1.6;
+        margin: 0;
+        padding: 20px;
+        background-color: var(--background-color);
+        color: var(--text-color);
+      }
+
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+      }
+
+      .tabs {
+        display: flex;
+        margin-bottom: 0; /* Remove bottom margin */
+        border-bottom: 2px solid var(--border-color);
+        gap: 4px;
+        background-color: var(--card-background);
+        padding: 0 10px;
+        border-top-left-radius: 8px;
+        border-top-right-radius: 8px;
+      }
+
+      .tab {
+        padding: 12px 24px;
+        cursor: pointer;
+        background: transparent;
+        border: none;
+        border-bottom: 3px solid transparent;
+        margin-bottom: -2px; /* Overlap border */
+        font-size: 1.1em;
+        color: var(--text-color);
+        opacity: 0.7;
+        transition: all 0.3s ease;
+      }
+
+      .tab:hover {
+        opacity: 1;
+        background-color: var(--hover-color);
+      }
+
+      .tab.active {
+        border-bottom: 3px solid var(--primary-color);
+        opacity: 1;
+        font-weight: 600;
+      }
+
+      .tab-content {
+        display: none;
+        background-color: var(--card-background);
+        padding: 20px;
+        border: 1px solid var(--border-color);
+        border-top: none; /* Tabs have bottom border */
+        border-bottom-left-radius: 8px;
+        border-bottom-right-radius: 8px;
+        margin-bottom: 20px; /* Add margin below content */
+      }
+
+      .tab-content.active {
+        display: block;
+      }
+
+      .item {
+        background-color: var(--card-background);
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        margin-bottom: 16px;
+        overflow: hidden;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+      }
+
+      .item-header {
+        background-color: #f8f9fa;
+        border-bottom: 1px solid var(--border-color);
+        padding: 12px 16px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        cursor: pointer;
+        transition: background-color 0.2s ease;
+      }
+
+      .item-header:hover {
+        background-color: var(--hover-color);
+      }
+
+      .item-id {
+        font-size: 1.1em;
+        font-weight: bold;
+      }
+
+      .item-content {
+        display: none; /* Collapsed by default */
+      }
+
+      .item-content.active {
+        display: block;
+      }
+
+      .summary {
+        background-color: #fdfdfd;
+        padding: 16px;
+        border-bottom: 1px solid var(--border-color);
+      }
+
+      .summary-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 12px;
+      }
+
+      .metric {
+        background-color: var(--background-color);
+        padding: 10px;
+        border-radius: 6px;
+        border: 1px solid var(--border-color);
+        text-align: center;
+      }
+
+      .metric-label {
+        font-size: 0.85em;
+        color: #6c757d;
+        margin-bottom: 4px;
+        display: block;
+      }
+
+      .metric-value {
+        font-size: 1.1em;
+        font-weight: bold;
+        color: var(--text-color);
+      }
+
+      .metric-value.error {
+        color: var(--error-color);
+      }
+
+      .turns {
+        padding: 0 16px 16px 16px;
+      }
+
+      .turn {
+        border: 1px solid var(--border-color);
+        border-radius: 6px;
+        margin-top: 16px;
+        background-color: #fff;
+        overflow: hidden;
+      }
+
+      .turn:first-child {
+        margin-top: 0;
+      }
+
+      .turn-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px 16px;
+        border-bottom: 1px solid var(--border-color);
+        background-color: #f8f9fa;
+      }
+
+      .turn-id {
+        font-weight: bold;
+        font-size: 0.95em;
+      }
+
+      .score {
+        display: inline-block;
+        padding: 3px 8px;
+        border-radius: 12px;
+        font-weight: bold;
+        font-size: 0.9em;
+        border: 1px solid transparent;
+      }
+
+      .score-high {
+        background-color: var(--score-high-bg);
+        color: var(--score-high-text);
+        border-color: var(--score-high-text);
+      }
+      .score-medium {
+        background-color: var(--score-medium-bg);
+        color: var(--score-medium-text);
+        border-color: var(--score-medium-text);
+      }
+      .score-low {
+        background-color: var(--score-low-bg);
+        color: var(--score-low-text);
+        border-color: var(--score-low-text);
+      }
+      .score-none {
+        background-color: var(--score-none-bg);
+        color: var(--score-none-text);
+        border-color: var(--score-none-border);
+      }
+
+      .turn-content {
+        padding: 16px;
+      }
+
+      .message {
+        margin-bottom: 12px;
+        padding-bottom: 8px;
+        border-bottom: 1px dashed var(--border-color);
+      }
+      .message:last-child {
+        margin-bottom: 0;
+        padding-bottom: 0;
+        border-bottom: none;
+      }
+
+      .message-label {
+        font-size: 0.9em;
+        color: #6c757d;
+        margin-bottom: 4px;
+        font-weight: 500;
+      }
+      .message-content {
+        white-space: pre-wrap;
+        word-wrap: break-word;
+        font-family: monospace;
+        background-color: #f8f9fa;
+        padding: 8px;
+        border-radius: 4px;
+        border: 1px solid var(--border-color);
+        font-size: 0.95em;
+        max-height: 200px;
+        overflow-y: auto;
+      }
+
+      .latency {
+        font-size: 0.85em;
+        color: #6c757d;
+        margin-top: 10px;
+        text-align: right;
+      }
+
+      .error-message {
+        color: var(--error-color);
+        font-weight: bold;
+        margin-top: 8px;
+        white-space: pre-wrap;
+        word-wrap: break-word;
+        font-size: 0.9em;
+        background-color: #f8d7da;
+        padding: 8px;
+        border-radius: 4px;
+        border: 1px solid var(--score-low-text);
+      }
+
+      .no-data {
+        text-align: center;
+        padding: 40px;
+        color: #6c757d;
+        font-size: 1.1em;
+      }
+
+      .chevron {
+        transition: transform 0.3s ease;
+        font-size: 1.2em;
+        color: #6c757d;
+      }
+
+      .item-header.active .chevron {
+        transform: rotate(180deg);
+      }
+
+      .summary-box h2 {
+        margin-top: 0;
+        margin-bottom: 15px;
+        font-size: 1.4em;
+      }
+      .summary-box .summary-grid {
+        gap: 15px;
+      }
+      .summary-box .metric {
+        padding: 12px;
+      }
+      .summary-box .metric-label {
+        font-size: 0.9em;
+      }
+      .summary-box .metric-value {
+        font-size: 1.2em;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>LLM Benchmark Report</h1>
+      <!-- Overall Summary Box -->
+      <div class="summary-box">
+        <h2>Overall Summary</h2>
+        <div class="summary-grid">
+          {# Use Jinja2 variables for summary data #}
+          <div class="metric">
+            <span class="metric-label">Total Items</span>
+            <span class="metric-value"
+              >{{ summary.total_items_processed | default('N/A') }}</span
+            >
+          </div>
+          <div class="metric">
+            <span class="metric-label">Completed</span>
+            <span class="metric-value"
+              >{{ summary.successfully_completed_items | default('N/A') }}</span
+            >
+          </div>
+          <div class="metric">
+            <span class="metric-label">Scored</span>
+            <span class="metric-value"
+              >{{ summary.scored_items | default('N/A') }}</span
+            >
+          </div>
+          <div class="metric">
+            <span class="metric-label">Errors</span>
+            <span class="metric-value error"
+              >{{ summary.error_items | default('N/A') }}</span
+            >
+          </div>
+          <div class="metric">
+            <span class="metric-label">Avg Score</span>
+            <span class="metric-value"
+              >{{ "%.2f"|format(summary.average_score_overall) if
+              summary.average_score_overall is not none else 'N/A' }}</span
+            >
+          </div>
+          <div class="metric">
+            <span class="metric-label">Avg Latency</span>
+            <span class="metric-value"
+              >{{ "%.2fs"|format(summary.average_latency_overall) if
+              summary.average_latency_overall is not none else 'N/A' }}</span
+            >
+          </div>
+        </div>
+      </div>
+
+      <!-- Tabs -->
+      <div class="tabs">
+        <button class="tab active" data-tab="success">Successful</button>
+        <button class="tab" data-tab="error">Errors</button>
+      </div>
+
+      <!-- Tab Content -->
+      <div id="success-content" class="tab-content active">
+        <div class="no-data">Loading successful items...</div>
+      </div>
+      <div id="error-content" class="tab-content">
+        <div class="no-data">Loading items with errors...</div>
+      </div>
+    </div>
+
+    <!-- Embed data in a script tag -->
+    <script id="benchmark-data" type="application/json">
+      {{ results_json | tojson | safe }}
+    </script>
+
+    <script>
+      // --- JavaScript for Rendering ---
+
+      function getScoreClass(score) {
+        if (score === null || score === undefined) return "score-none";
+        if (score >= 0.8) return "score-high";
+        if (score >= 0.5) return "score-medium";
+        return "score-low";
+      }
+
+      function formatNumber(number, decimals = 2) {
+        if (number === null || number === undefined) return "N/A";
+        try {
+          const num = Number(number);
+          if (isNaN(num)) return "N/A";
+          return num.toFixed(decimals);
+        } catch (e) {
+          console.error("Error formatting number:", number, e);
+          return "N/A";
+        }
+      }
+
+      function escapeHtml(unsafe) {
+        if (unsafe === null || unsafe === undefined) return "";
+        const div = document.createElement("div");
+        div.textContent = unsafe;
+        return div.innerHTML;
+      }
+
+      // Renders a single prompt item
+      function renderSinglePrompt(item) {
+        const itemElement = document.createElement("div");
+        itemElement.className = "item single-prompt";
+
+        const score = item.score;
+        const scoreClass = getScoreClass(score);
+        const scoreDisplay = formatNumber(score);
+        const latencyDisplay = formatNumber(item.latency);
+        const errorMsg = item.error || item.eval_error || "";
+        let userMsg =
+          item.user_message ||
+          (item.messages && item.messages[0]?.content) ||
+          item.prompt ||
+          "N/A";
+
+        const header = document.createElement("div");
+        header.className = "item-header";
+        header.innerHTML = `
+              <div class="item-id">${escapeHtml(item.id)} (Single Prompt)</div>
+              <div style="display: flex; align-items: center; gap: 12px;">
+                  <div class="score ${scoreClass}">Score: ${scoreDisplay}</div>
+                  <div class="chevron">▼</div>
+              </div>`;
+
+        const content = document.createElement("div");
+        content.className = "item-content";
+        content.innerHTML = `
+              <div class="turns">
+                  <div class="turn">
+                       <div class="turn-content">
+                          <div class="message">
+                              <div class="message-label">User Message:</div>
+                              <div class="message-content">${escapeHtml(
+                                userMsg
+                              )}</div>
+                          </div>
+                          <div class="message">
+                              <div class="message-label">Response:</div>
+                              <div class="message-content">${escapeHtml(
+                                item.actual
+                              )}</div>
+                          </div>
+                          ${
+                            item.expected
+                              ? `
+                              <div class="message">
+                                  <div class="message-label">Expected:</div>
+                                  <div class="message-content">${escapeHtml(
+                                    item.expected
+                                  )}</div>
+                              </div>
+                          `
+                              : ""
+                          }
+                          <div class="message">
+                              <div class="message-label">Reasoning:</div>
+                              <div class="message-content">${escapeHtml(
+                                item.scoreReasoning
+                              )}</div>
+                          </div>
+                          ${
+                            errorMsg
+                              ? `<div class="error-message">Error: ${escapeHtml(
+                                  errorMsg
+                                )}</div>`
+                              : ""
+                          }
+                          <div class="latency">Latency: ${latencyDisplay}s</div>
+                      </div>
+                  </div>
+              </div>`;
+
+        header.addEventListener("click", () => {
+          header.classList.toggle("active");
+          content.classList.toggle("active");
+        });
+
+        itemElement.appendChild(header);
+        itemElement.appendChild(content);
+        return itemElement;
+      }
+
+      // Renders a conversation item
+      function renderConversation(conversation) {
+        const itemElement = document.createElement("div");
+        itemElement.className = "item conversation";
+
+        const summary = conversation.conversation_summary || {};
+        const avgScore = summary.average_score;
+        const scoreClass = getScoreClass(avgScore);
+        const scoreDisplay = formatNumber(avgScore);
+        const avgLatency = summary.average_latency_per_turn;
+        const successRate =
+          summary.total_turns &&
+          summary.successfully_completed_turns !== undefined &&
+          summary.total_turns > 0
+            ? formatNumber(
+                (summary.successfully_completed_turns / summary.total_turns) *
+                  100
+              )
+            : "N/A";
+        const errorTurns = summary.error_turns || 0;
+
+        const header = document.createElement("div");
+        header.className = "item-header";
+        header.innerHTML = `
+              <div class="item-id">${escapeHtml(conversation.id)}</div>
+              <div style="display: flex; align-items: center; gap: 12px;">
+                  <div class="score ${scoreClass}">Avg Score: ${scoreDisplay}</div>
+                  <div class="chevron">▼</div>
+              </div>`;
+
+        const content = document.createElement("div");
+        content.className = "item-content";
+        content.innerHTML = `
+              <div class="summary">
+                  <div class="summary-grid">
+                      <div class="metric"><span class="metric-label">Total Turns</span><span class="metric-value">${
+                        summary.total_turns || "N/A"
+                      }</span></div>
+                      <div class="metric"><span class="metric-label">Avg Latency</span><span class="metric-value">${formatNumber(
+                        avgLatency
+                      )}s</span></div>
+                      <div class="metric"><span class="metric-label">Success Rate</span><span class="metric-value">${successRate}%</span></div>
+                      <div class="metric"><span class="metric-label">Error Turns</span><span class="metric-value ${
+                        errorTurns > 0 ? "error" : ""
+                      }">${errorTurns}</span></div>
+                  </div>
+              </div>
+              <div class="turns">
+                  ${(conversation.turns || [])
+                    .map((turn) => {
+                      const turnScore = turn.score;
+                      const turnScoreClass = getScoreClass(turnScore);
+                      const turnScoreDisplay = formatNumber(turnScore);
+                      const turnLatencyDisplay = formatNumber(turn.latency);
+                      const turnErrorMsg = turn.error || turn.eval_error || "";
+                      return `
+                          <div class="turn">
+                              <div class="turn-header">
+                                  <div class="turn-id">${escapeHtml(
+                                    turn.id
+                                  )}</div>
+                                  <div class="score ${turnScoreClass}">Score: ${turnScoreDisplay}</div>
+                              </div>
+                              <div class="turn-content">
+                                  <div class="message">
+                                      <div class="message-label">User Message:</div>
+                                      <div class="message-content">${escapeHtml(
+                                        turn.user_message
+                                      )}</div>
+                                  </div>
+                                  <div class="message">
+                                      <div class="message-label">Response:</div>
+                                      <div class="message-content">${escapeHtml(
+                                        turn.actual
+                                      )}</div>
+                                  </div>
+                                  ${
+                                    turn.expected
+                                      ? `
+                                      <div class="message">
+                                          <div class="message-label">Expected:</div>
+                                          <div class="message-content">${escapeHtml(
+                                            turn.expected
+                                          )}</div>
+                                      </div>
+                                  `
+                                      : ""
+                                  }
+                                  <div class="message">
+                                      <div class="message-label">Reasoning:</div>
+                                      <div class="message-content">${escapeHtml(
+                                        turn.scoreReasoning
+                                      )}</div>
+                                  </div>
+                                  ${
+                                    turnErrorMsg
+                                      ? `<div class="error-message">Error: ${escapeHtml(
+                                          turnErrorMsg
+                                        )}</div>`
+                                      : ""
+                                  }
+                                  <div class="latency">Latency: ${turnLatencyDisplay}s</div>
+                              </div>
+                          </div>`;
+                    })
+                    .join("")}
+              </div>`;
+
+        header.addEventListener("click", () => {
+          header.classList.toggle("active");
+          content.classList.toggle("active");
+        });
+
+        itemElement.appendChild(header);
+        itemElement.appendChild(content);
+        return itemElement;
+      }
+
+      function renderResults(benchmarkData) {
+        console.log("Rendering results with data:", benchmarkData); // DEBUG: Log incoming data
+        const successContent = document.getElementById("success-content");
+        const errorContent = document.getElementById("error-content");
+        successContent.innerHTML = ""; // Clear loading message
+        errorContent.innerHTML = ""; // Clear loading message
+
+        let successCount = 0;
+        let errorCount = 0;
+
+        if (
+          !benchmarkData ||
+          !Array.isArray(benchmarkData) ||
+          benchmarkData.length === 0
+        ) {
+          console.warn(
+            "Benchmark data is missing, not an array, or empty:",
+            benchmarkData
+          );
+          successContent.innerHTML =
+            '<div class="no-data">No benchmark data found or data is invalid.</div>';
+          errorContent.innerHTML =
+            '<div class="no-data">No benchmark data found or data is invalid.</div>';
+          document.querySelector(
+            '.tab[data-tab="success"]'
+          ).textContent = `Successful (0)`;
+          document.querySelector(
+            '.tab[data-tab="error"]'
+          ).textContent = `Errors (0)`;
+          return;
+        }
+
+        benchmarkData.forEach((item, index) => {
+          console.log(`Processing item ${index}:`, item); // DEBUG: Log each item
+          if (!item || typeof item !== "object") {
+            console.warn("Skipping invalid item in benchmark data:", item);
+            return;
+          }
+
+          let hasError = false;
+          let element = null; // Initialize element to null
+
+          try {
+            // Check if it's a conversation (has turns and summary)
+            if (
+              item.turns &&
+              Array.isArray(item.turns) &&
+              item.conversation_summary
+            ) {
+              console.log(`Item ${item.id} is a conversation.`); // DEBUG
+              hasError = item.conversation_summary.error_turns > 0;
+              element = renderConversation(item);
+            }
+            // Check if it's a single prompt (has id, but no turns/summary)
+            else if (item.id && !item.turns) {
+              console.log(`Item ${item.id} is a single prompt.`); // DEBUG
+              hasError = !!(item.error || item.eval_error);
+              element = renderSinglePrompt(item);
+            }
+            // Otherwise, skip unrecognized format
+            else {
+              console.warn("Skipping unrecognized item format:", item);
+              return;
+            }
+
+            // Append the element if successfully created
+            if (element) {
+              if (hasError) {
+                console.log(`Appending item ${item.id} to error tab.`); // DEBUG
+                errorContent.appendChild(element);
+                errorCount++;
+              } else {
+                console.log(`Appending item ${item.id} to success tab.`); // DEBUG
+                successContent.appendChild(element);
+                successCount++;
+              }
+            } else {
+              console.warn(`Failed to render element for item:`, item); // DEBUG
+            }
+          } catch (renderError) {
+            console.error(
+              `Error rendering item ${item.id}:`,
+              renderError,
+              item
+            ); // DEBUG: Log errors during rendering
+          }
+        });
+
+        console.log(
+          `Final counts - Success: ${successCount}, Error: ${errorCount}`
+        ); // DEBUG: Log final counts
+
+        if (successCount === 0) {
+          successContent.innerHTML =
+            '<div class="no-data">No successful items found.</div>';
+        }
+        if (errorCount === 0) {
+          errorContent.innerHTML =
+            '<div class="no-data">No items with errors found.</div>';
+        }
+
+        document.querySelector(
+          '.tab[data-tab="success"]'
+        ).textContent = `Successful (${successCount})`;
+        document.querySelector(
+          '.tab[data-tab="error"]'
+        ).textContent = `Errors (${errorCount})`;
+      }
+
+      function initializeTabs() {
+        const tabs = document.querySelectorAll(".tab");
+        tabs.forEach((tab) => {
+          tab.addEventListener("click", () => {
+            tabs.forEach((t) => t.classList.remove("active"));
+            document.querySelectorAll(".tab-content").forEach((content) => {
+              content.classList.remove("active");
+            });
+            tab.classList.add("active");
+            const tabName = tab.getAttribute("data-tab");
+            document
+              .getElementById(`${tabName}-content`)
+              .classList.add("active");
+          });
+        });
+      }
+
+      document.addEventListener("DOMContentLoaded", () => {
+        console.log("DOM Content Loaded. Initializing report UI."); // DEBUG
+        try {
+          const dataElement = document.getElementById("benchmark-data");
+          if (!dataElement) {
+            console.error(
+              "Could not find benchmark data script tag (#benchmark-data)."
+            );
+            return;
+          }
+          console.log("Data element found:", dataElement); // DEBUG
+          const jsonData = dataElement.textContent || "[]";
+          console.log("Raw JSON data:", jsonData); // DEBUG
+          const benchmarkData = JSON.parse(jsonData);
+
+          initializeTabs();
+          renderResults(benchmarkData); // Pass the parsed data
+        } catch (e) {
+          console.error("Error initializing report UI:", e);
+          const container = document.querySelector(".container");
+          if (container) {
+            const errorDiv = document.createElement("div");
+            errorDiv.textContent =
+              "Error loading or parsing report data. Please check the console.";
+            errorDiv.style.color = "red";
+            errorDiv.style.padding = "20px";
+            container.prepend(errorDiv);
+          }
+        }
+      });
+    </script>
+  </body>
+</html>
