@@ -53,6 +53,9 @@ async def run_prompts(
         async with semaphore:
             start_time = time.perf_counter()
             try:
+                # sleep for 5sec
+                await asyncio.sleep(5)
+                # Make the request
                 async with session.post(endpoint_url, json=payload, headers=headers) as resp:
                     latency = time.perf_counter() - start_time
                     resp_status = resp.status

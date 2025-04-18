@@ -84,7 +84,8 @@ async def evaluate_responses(
                     "✅ Variable values, numbers, or identifiers may vary, as long as meaning is preserved.\n"
                     "✅ Check if the actual answer delivers the same intent, logic, and meaning as the reference.\n"
                     "✅ Ignore formatting differences or phrasing variations.\n"
-                    "❌ Deduct points if meaning is lost, logic is incorrect, or important elements are missing.\n\n"
+                    "❌ Deduct points if meaning is lost, logic is incorrect, or important elements are missing.\n"
+                    "❌ Assign a low score (closer to 0) if the actual answer indicates inability, failure, or refusal to answer (e.g., 'I cannot...', 'Unable to fetch...', 'I don't know...').\n\n"
                     "Respond with:\n"
                     "1. A **single numeric score between 0 and 1**, with up to two decimal places.\n"
                     "2. Followed by a short reason for this score, in **one sentence**.\n\n"
@@ -102,7 +103,8 @@ async def evaluate_responses(
                     "✅ Consider if the answer is logically sound and factually correct.\n"
                     "✅ Check if it fully answers the implied question or task.\n"
                     "✅ Reward answers that are well-structured, clear, and comprehensive.\n"
-                    "❌ Deduct points for incomplete, vague, or factually incorrect responses.\n\n"
+                    "❌ Deduct points for incomplete, vague, or factually incorrect responses.\n"
+                    "❌ Assign a low score (closer to 0) if the actual answer indicates inability, failure, or refusal to answer (e.g., 'I cannot...', 'Unable to fetch...', 'I don't know...').\n\n"
                     "Respond with:\n"
                     "1. A **single numeric score between 0 and 1**, with up to two decimal places.\n"
                     "2. Followed by a short reason for this score, in **one sentence**.\n\n"
@@ -126,6 +128,8 @@ async def evaluate_responses(
 
         async with semaphore:
             try:
+                # wait for 5sec to avoid rate limit
+                await asyncio.sleep(5)
                 # Use the initialized evaluator instance
                 res = await evaluator.ainvoke(eval_prompt_messages)
                 raw_response = res.content.strip() if hasattr(res, 'content') else str(res).strip() # Handle different response types
