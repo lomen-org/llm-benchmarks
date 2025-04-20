@@ -3,6 +3,13 @@ import json
 from langchain_openai import ChatOpenAI
 from ..utils import env_loader # Keep env_loader for fallback
 from typing import List, Dict, Any, Optional
+import logging
+import time
+
+# Configure logging (can share config with executor or have its own)
+# Using the same basic config for simplicity here
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
 
 async def evaluate_responses(
     results: List[Dict[str, Any]],
@@ -17,34 +24,44 @@ async def evaluate_responses(
             eval_model: The evaluator model name.
             eval_api_key: The API key for the evaluator model.
             eval_endpoint_url: The endpoint URL for the evaluator model.
-            eval_batch_size: Max concurrent evaluation requests.
+            eval_batch_size: Max concurrent evaluation requests (default 5).
+            eval_request_delay_ms: Delay in milliseconds between evaluation requests (default 0).
+            eval_max_retries: Max retries on 429 errors for evaluator (default 3).
             benchmark_api_key: Fallback API key if eval_api_key is missing.
             benchmark_endpoint_url: Fallback endpoint if eval_endpoint_url is missing.
 
     Returns:
         A list of result dictionaries, augmented with evaluation scores and reasoning.
     """
+    logger.info(f"Starting evaluation for {len(results)} items...")
     cfg = config or {}
     # Use config values or fallback to environment variables
     eval_model = cfg.get("eval_model", env_loader.get_env("EVAL_MODEL", "gpt-4"))
     eval_api_key = cfg.get("eval_api_key", env_loader.get_env("EVAL_API_KEY", env_loader.get_env("BENCHMARK_API_KEY")))
     eval_endpoint_url = cfg.get("eval_endpoint_url", env_loader.get_env("EVAL_ENDPOINT_URL", env_loader.get_env("BENCHMARK_ENDPOINT_URL")))
     eval_batch_size = int(cfg.get("eval_batch_size", env_loader.get_env("EVAL_BATCH_SIZE", 5)))
+    eval_request_delay_ms = int(cfg.get("eval_request_delay_ms", env_loader.get_env("EVAL_REQUEST_DELAY_MS", 0)))
+    eval_max_retries = int(cfg.get("eval_max_retries", env_loader.get_env("EVAL_MAX_RETRIES", 3)))
+    logger.info(f"Evaluator Config: Model={eval_model}, Endpoint={eval_endpoint_url}, BatchSize={eval_batch_size}, Delay={eval_request_delay_ms}ms, Retries={eval_max_retries}")
 
     if not eval_api_key:
-        print("Warning: Evaluator API key not found in config or environment variables (EVAL_API_KEY, BENCHMARK_API_KEY). Evaluation might fail.")
+        logger.warning("Evaluator API key not found in config or environment variables (EVAL_API_KEY, BENCHMARK_API_KEY). Evaluation might fail.")
     if not eval_endpoint_url:
-         print("Warning: Evaluator endpoint URL not found in config or environment variables (EVAL_ENDPOINT_URL, BENCHMARK_ENDPOINT_URL). Evaluation might fail.")
+         logger.warning("Evaluator endpoint URL not found in config or environment variables (EVAL_ENDPOINT_URL, BENCHMARK_ENDPOINT_URL). Evaluation might fail.")
          # Allow proceeding without endpoint if user intends to use default OpenAI endpoint
 
     try:
+        logger.info(f"Initializing evaluator LLM: {eval_model}")
+        # Pass max_retries to the ChatOpenAI client
         evaluator = ChatOpenAI(
             model_name=eval_model,
             openai_api_key=eval_api_key,
-            base_url=eval_endpoint_url # Can be None if using default OpenAI
+            base_url=eval_endpoint_url, # Can be None if using default OpenAI
+            max_retries=eval_max_retries
         )
+        logger.info("Evaluator LLM initialized successfully.")
     except Exception as e:
-        print(f"Error initializing evaluator LLM: {e}")
+        logger.error(f"Error initializing evaluator LLM: {e}", exc_info=True)
         # Return results without evaluation if evaluator fails to initialize
         return [ {**r, "score": None, "scoreReasoning": None, "eval_error": f"Evaluator Initialization Error: {e}"} for r in results]
 
@@ -61,14 +78,16 @@ async def evaluate_responses(
         # Handle cases where the execution failed or actual answer is missing
         # Also skip evaluation if there's already an error from the executor
         if actual_answer is None or item.get("error"):
+             reason_skip = "No actual answer generated" if actual_answer is None else f"Execution error occurred: {item.get('error')}"
+             logger.warning(f"Skipping evaluation for item {item_id}: {reason_skip}")
              return {
                  **item, # Keep original fields
                  "id": item_id,
                  "prompt": prompt_content,
                  "expected": expected_answer,
                  "actual": actual_answer, # Keep actual as None if it was None
-                 "score": 0.0 if actual_answer is None else None, # Assign 0 only if execution failed, None otherwise for eval skip
-                 "scoreReasoning": "Evaluation skipped: No actual answer generated or execution error occurred." if actual_answer is None or item.get("error") else None,
+                 "score": 0.0 if actual_answer is None else None, # Assign 0 only if execution failed (no answer), None otherwise for eval skip due to prior error
+                 "scoreReasoning": f"Evaluation skipped: {reason_skip}.",
                  "eval_error": None # No *evaluation* error here
              }
 
@@ -117,8 +136,10 @@ async def evaluate_responses(
                 {"role": "system", "content": "You are a strict evaluator of answers."},
                 {"role": "user", "content": content}
             ]
+            # logger.debug(f"Evaluation prompt for item {item_id}:\n{json.dumps(eval_prompt_messages, indent=2)}") # Optional: Log full prompt if needed (can be verbose)
         except Exception as prompt_build_e:
              # Error building the evaluation prompt itself
+             logger.error(f"Error building evaluation prompt for item {item_id}: {prompt_build_e}", exc_info=True)
              return {
                 **item,
                 "score": None,
@@ -127,12 +148,20 @@ async def evaluate_responses(
             }
 
         async with semaphore:
+            # Apply delay before starting the request attempt
+            # if eval_request_delay_ms > 0:
+            #     await asyncio.sleep(eval_request_delay_ms / 1000.0)
+            await asyncio.sleep(60)
+
+            logger.info(f"Sending evaluation request for item {item_id} (using internal retries)...")
             try:
-                # wait for 5sec to avoid rate limit
-                await asyncio.sleep(5)
-                # Use the initialized evaluator instance
+                # Use the initialized evaluator instance (internal retries handled by ChatOpenAI)
+                start_time = time.perf_counter()
                 res = await evaluator.ainvoke(eval_prompt_messages)
+                latency = time.perf_counter() - start_time
                 raw_response = res.content.strip() if hasattr(res, 'content') else str(res).strip() # Handle different response types
+                logger.info(f"Received evaluation response for item {item_id}. Latency: {latency:.4f}s")
+                # logger.debug(f"Raw evaluation response for item {item_id}: {raw_response}") # Optional: Log raw response
 
                 score = None
                 reason = "Evaluation parsing failed: Could not extract score/reason."
@@ -159,15 +188,16 @@ async def evaluate_responses(
                              score = min(1.0, max(0.0, score_val))
                              reason = "Score found, but reason missing in evaluator response."
                          except ValueError:
-                             # If it's not a float either, parsing failed
-                             reason = f"Evaluation parsing failed: Unexpected format '{raw_response}'"
+                              # If it's not a float either, parsing failed
+                              reason = f"Evaluation parsing failed: Unexpected format '{raw_response}'"
+                              logger.warning(f"Could not parse score from response for item {item_id}: '{raw_response}'")
 
                 except (ValueError, IndexError) as parse_e:
-                    print(f"Error parsing evaluation response for item {item_id}: {parse_e}, raw_response: {raw_response}")
+                    logger.error(f"Error parsing evaluation response for item {item_id}: {parse_e}, raw_response: {raw_response[:500]}...")
                     # Keep score as None, update reason
-                    reason = f"Evaluation parsing failed: {parse_e}. Raw: '{raw_response}'"
+                    reason = f"Evaluation parsing failed: {parse_e}. Raw: '{raw_response}'" # Keep full raw response in reasoning for debugging
 
-
+                logger.info(f"Evaluation result for item {item_id}: Score={score}, Reason='{reason}'")
                 # Merge evaluation results with original item data
                 return {
                     **item,
@@ -177,16 +207,28 @@ async def evaluate_responses(
                 }
 
             except Exception as eval_e:
-                print(f"Evaluation Exception for item {item_id}: {eval_e}")
+                # This catches errors after ChatOpenAI's internal retries (if any) are exhausted
+                # Log the final error after potential retries
+                logger.error(f"Evaluation Exception for item {item_id} after potential retries: {eval_e}", exc_info=True)
+                # Check if the error is specifically a rate limit error (might need specific exception type from openai/langchain)
+                # Example check (may need adjustment based on actual exception type):
+                error_type = type(eval_e).__name__
+                error_msg = f"Evaluation API Error ({error_type}): {str(eval_e)}"
+                if "RateLimitError" in error_type: # Heuristic check
+                    error_msg = f"Evaluation failed due to Rate Limit Error after {eval_max_retries} retries: {str(eval_e)}"
+
                 return {
                     **item,
                     "score": None, # Indicate evaluation failed
                     "scoreReasoning": None,
-                    "eval_error": f"Evaluation API Error: {str(eval_e)}",
+                    "eval_error": error_msg,
                 }
 
     # Create tasks for evaluation
+    logger.info(f"Creating {len(results)} evaluation tasks...")
     evaluation_tasks = [_evaluate(r) for r in results]
+    logger.info(f"Waiting for {len(evaluation_tasks)} evaluation tasks to complete...")
     evaluated_results = await asyncio.gather(*evaluation_tasks)
+    logger.info("All evaluation tasks finished.")
 
     return evaluated_results
