@@ -1,6 +1,7 @@
 import asyncio
 import time
 import aiohttp
+from aiohttp import ClientTimeout
 from ..utils import env_loader # Keep env_loader for fallback
 import copy
 from typing import List, Dict, Any, Optional
@@ -63,12 +64,10 @@ async def run_prompts(
         turn_id = turn_info.get("id", "unknown_id") # Get ID for logging
         retries = 0
         last_error = None
+        
+        await asyncio.sleep(30)
 
         async with semaphore:
-            # Apply delay before starting the request attempt (within the semaphore)
-            # if request_delay_ms > 0:
-            await asyncio.sleep(60)
-
             while retries <= max_retries:
                 start_time = time.perf_counter()
                 logger.info(f"Attempt {retries + 1}/{max_retries + 1} for item {turn_id}...")
@@ -138,8 +137,12 @@ async def run_prompts(
                 "latency": time.perf_counter() - start_time # Latency of the last attempt
             }
 
-    # Use a single session for all requests
-    async with aiohttp.ClientSession() as session:
+    # Define a longer timeout (e.g., 600 seconds = 10 minutes)
+    timeout = ClientTimeout(total=600)
+
+
+    # Use a single session for all requests with the specified timeout
+    async with aiohttp.ClientSession(timeout=timeout) as session:
         all_tasks = [] # Use a single list for all tasks
 
         for item in prompts_or_conversations:
