@@ -1,6 +1,6 @@
 # LLM Benchmarker SDK
 
-A Python SDK for benchmarking Large Language Model (LLM) responses, supporting both single prompts and multi-turn conversations, with automated evaluation using another LLM.
+A Python SDK for benchmarking Large Language Model (LLM) responses, supporting both single prompts and multi-turn conversations with automated evaluation using another LLM.
 
 ## Features
 
@@ -17,10 +17,10 @@ A Python SDK for benchmarking Large Language Model (LLM) responses, supporting b
 1.  **Clone the repository (if you haven't already):**
     ```bash
     git clone <repository_url>
-    cd llm-benchmark
+    cd llm-benchmarks
     ```
 2.  **Install the package and its dependencies:**
-    It's recommended to use a virtual environment:
+    It is recommended to use a virtual environment:
     ```bash
     python -m venv venv
     source venv/bin/activate # On Windows use `venv\Scripts\activate`
@@ -125,7 +125,7 @@ The `run_benchmark` function takes a single `config` dictionary. Key options:
 - **Input Data:**
   - `prompt_file_path` (str): Path to a JSON file containing a list of prompts/conversations (see format below).
   - `prompts_data` (list): A list of prompt/conversation dictionaries provided directly.
-  - _Note:_ You must provide _either_ `prompt_file_path` _or_ `prompts_data\*.
+  - _Note:_ You must provide _either_ `prompt_file_path` _or_ `prompts_data`.
 - **Output Control:**
   - `output_dir` (str): Directory where result files (`.json`, `.html`) will be saved. Defaults to the current directory (`.`).
   - `save_results`, `save_summary`, `save_report` (bool): Flags to control whether the detailed results, summary JSON, and HTML report are saved. Default to `True`.
