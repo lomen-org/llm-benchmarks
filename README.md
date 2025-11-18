@@ -32,6 +32,13 @@ A Python SDK for benchmarking Large Language Model (LLM) responses, supporting b
 
 Import the `run_benchmark` function and call it with a configuration dictionary.
 
+### Quickstart
+
+1.  Install the package as described in the Installation section.
+2.  Set your `BENCHMARK_API_KEY` (and related environment variables) or configure `executor_config` directly in code.
+3.  Create a `prompt.json` file matching the formats shown below.
+4.  Run the example script in this README (or your own script) to execute the benchmark and generate results.
+
 ```python
 import asyncio
 import json
@@ -41,7 +48,7 @@ from llm_benchmarker import run_benchmark
 async def main():
     # --- Configuration ---
 
-    # Set necessary API keys and endpoints either here or as environment variables
+    # Set necessary API keys and endpoints either here or as environment variables.
     # os.environ["BENCHMARK_API_KEY"] = "YOUR_API_KEY"
     # os.environ["BENCHMARK_ENDPOINT_URL"] = "YOUR_API_ENDPOINT"
     # os.environ["EVAL_API_KEY"] = "YOUR_EVAL_KEY" # Can fallback to BENCHMARK_API_KEY
@@ -52,7 +59,7 @@ async def main():
         # Option 1: Load prompts from a JSON file
         "prompt_file_path": "prompt.json",
 
-        # Option 2: Provide prompts directly as a list
+        # Option 2: Provide prompts directly as a list(mutually exclusive with `prompt_file_path`)
         # "prompts_data": [
         #     {
         #         "id": "conv-001",
