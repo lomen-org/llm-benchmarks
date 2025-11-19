@@ -1,10 +1,10 @@
 # LLM Benchmarker SDK
 
-A Python SDK for benchmarking Large Language Model (LLM) responses, supporting both single prompts and multi-turn conversations with automated evaluation using another LLM.
+A Python SDK for benchmarking Large Language Model (LLM) responses, supporting both single prompts and multi-turn conversations, with automated evaluation using another LLM.
 
 ## Features
 
-- Run benchmarks against any LLM API endpoint compatible with the OpenAI Chat Completions format.
+- Run benchmarks against any LLM API endpoint that is compatible with the OpenAI Chat Completions format.
 - Supports both single-turn prompts and multi-turn conversations.
 - Evaluates LLM responses based on semantic similarity to expected answers (if provided) or self-evaluation using a separate evaluator LLM (e.g., GPT-4).
 - Calculates performance metrics like average score and latency.
@@ -23,7 +23,7 @@ A Python SDK for benchmarking Large Language Model (LLM) responses, supporting b
     It is recommended to use a virtual environment:
     ```bash
     python -m venv venv
-    source venv/bin/activate # On Windows use `venv\Scripts\activate`
+    source venv/bin/activate # On Windows, use `venv\Scripts\activate`
     pip install .
     ```
     This command installs the `llm-benchmarker` package defined in `pyproject.toml` along with dependencies like `langchain-openai`, `aiohttp`, and `python-dotenv`.
@@ -34,7 +34,7 @@ Import the `run_benchmark` function and call it with a configuration dictionary.
 
 ### Quickstart
 
-1.  Install the package as described in the Installation section.
+1.  Install the package as described in the **Installation** section.
 2.  Set your `BENCHMARK_API_KEY` (and related environment variables) or configure `executor_config` directly in code.
 3.  Create a `prompt.json` file matching the formats shown below.
 4.  Run the example script in this README (or your own script) to execute the benchmark and generate results.
@@ -51,8 +51,8 @@ async def main():
     # Set necessary API keys and endpoints either here or as environment variables.
     # os.environ["BENCHMARK_API_KEY"] = "YOUR_API_KEY"
     # os.environ["BENCHMARK_ENDPOINT_URL"] = "YOUR_API_ENDPOINT"
-    # os.environ["EVAL_API_KEY"] = "YOUR_EVAL_KEY" # Can fallback to BENCHMARK_API_KEY
-    # os.environ["EVAL_ENDPOINT_URL"] = "YOUR_EVAL_ENDPOINT" # Can fallback to BENCHMARK_ENDPOINT_URL
+    # os.environ["EVAL_API_KEY"] = "YOUR_EVAL_KEY" # Can fall back to BENCHMARK_API_KEY
+    # os.environ["EVAL_ENDPOINT_URL"] = "YOUR_EVAL_ENDPOINT" # Can fall back to BENCHMARK_ENDPOINT_URL
 
     config = {
         # --- Input ---
@@ -156,7 +156,7 @@ If configuration values (like API keys, endpoints, batch sizes) are _not_ provid
 - `BENCHMARK_ENDPOINT_URL`, `BENCHMARK_API_KEY`, `BENCHMARK_MODEL`, `BATCH_SIZE`
 - `EVAL_MODEL`, `EVAL_API_KEY`, `EVAL_ENDPOINT_URL`, `EVAL_BATCH_SIZE`
 
-This allows you to configure sensitive keys or common settings outside your script using tools like `.env` files (loaded via `python-dotenv`, which is included as a dependency).
+This allows you to configure sensitive keys or common settings outside your script using tools such as `.env` files (loaded via `python-dotenv`, which is included as a dependency).
 
 ## Prompt File Format (`prompt.json`)
 
